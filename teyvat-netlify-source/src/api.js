@@ -1,0 +1,3 @@
+let csrf;
+export function setCsrf(value){csrf=value;}
+export async function api(path,options={}){const isForm=options.body instanceof FormData;const response=await fetch('/api'+path,{...options,credentials:'same-origin',headers:{...(!isForm&&options.body?{'Content-Type':'application/json'}:{}),...(csrf?{'X-CSRF-Token':csrf}:{}),...options.headers},body:options.body?(isForm?options.body:JSON.stringify(options.body)):undefined});const data=await response.json();if(!response.ok){const e=new Error(data.error||'请求失败');e.status=response.status;throw e;}if('csrf'in data)setCsrf(data.csrf);return data;}
